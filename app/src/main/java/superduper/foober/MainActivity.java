@@ -1,11 +1,23 @@
 package superduper.foober;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import de.greenrobot.event.EventBus;
+import superduper.foober.Event.YelpEvent;
+import superduper.foober.Job.GetYelp;
+import superduper.foober.models.BusinessList;
+
 public class MainActivity extends Activity {
+    private LocationManager mLocationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
