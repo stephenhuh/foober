@@ -5,7 +5,7 @@ import android.app.Application;
 import com.path.android.jobqueue.JobManager;
 import com.path.android.jobqueue.config.Configuration;
 
-public class FooberActivity extends Application {
+public class FooberApplication extends Application {
 
     public static JobManager JOB_MANAGER;
 

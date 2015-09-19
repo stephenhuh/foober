@@ -26,4 +26,7 @@ dependencies {
     compile 'com.squareup.okio:okio:1.3.0'
     compile 'com.path:android-priority-jobqueue:1.1.2'
     compile 'de.greenrobot:eventbus:2.4.0'
+    compile files('libs/jcommander-1.35.jar')
+    compile files('libs/json_simple-1.1.jar')
+    compile files('libs/scribe-1.3.5.jar')
 }
