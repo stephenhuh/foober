@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import superduper.foober.Event.YelpEvent;
+
 public class MainActivity extends Activity {
 
     @Override
@@ -33,5 +35,9 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onEventMainThread(YelpEvent yelpEvent) {
+        
     }
 }
