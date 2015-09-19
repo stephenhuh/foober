@@ -11,15 +11,27 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends Activity {
+import de.greenrobot.event.EventBus;
+import superduper.foober.Event.YelpEvent;
+import superduper.foober.Job.GetYelp;
+import superduper.foober.models.BusinessList;
 
-    LocationManager mLocationManager;
+public class MainActivity extends Activity {
+    private LocationManager mLocationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        
+        //TODO Remove test data in GetYelp when needed
+        FooberApplication.getJobManager().addJobInBackground(new GetYelp(
+                42.449650999999996, //Lat
+                -76.4812924, //Long
+                10000,//radius
+                1,//limit
+                "dinner"));
 
         //If GPS is enabled, update the location. Else, show an alert dialog.
         if(mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -27,6 +39,7 @@ public class MainActivity extends Activity {
         } else {
             createNoGpsAlert();
         }
+    
     }
 
     @Override
@@ -49,6 +62,27 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    
+    public void onEventMainThread(YelpEvent yelpEvent) {
+        BusinessList response = yelpEvent.businessList;
+        System.out.println(response.getBusinessList().get(0).getAddress());
+        System.out.println(response.getBusinessList().get(0).getName());
+        System.out.println(response.getBusinessList().get(0).getPhoneNumber());
+        System.out.println(response.getBusinessList().get(0).getLocationData());
+        System.out.println(response.getBusinessList().get(0).getCity());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     /**
@@ -93,4 +127,5 @@ public class MainActivity extends Activity {
             }
         }
     }
+    
 }
