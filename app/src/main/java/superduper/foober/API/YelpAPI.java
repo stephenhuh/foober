@@ -12,6 +12,7 @@ import org.scribe.oauth.OAuthService;
 
 import com.google.gson.Gson;
 
+import superduper.foober.models.BusinessList;
 import superduper.foober.models.BusinessModel;
 
 /**
@@ -118,24 +119,20 @@ public class YelpAPI {
      *
      * @param yelpApi <tt>YelpAPI</tt> service instance
      */
-    public static BusinessModel queryAPI(YelpAPI yelpApi, QueryParams queryParams) {
+    public static BusinessList queryAPI(YelpAPI yelpApi, QueryParams queryParams) {
         String searchResponseJSON =
                 yelpApi.searchForBusinessesByLocation(queryParams);
 
-        BusinessModel response = null;
+        BusinessList response = null;
+        System.out.println(searchResponseJSON);
         Gson gson = new Gson();
         try {
-            response = gson.fromJson(searchResponseJSON, BusinessModel.class);
+            response = gson.fromJson(searchResponseJSON, BusinessList.class);
         } catch (Exception pe) {
             System.out.println("Error: could not parse JSON response:");
             System.out.println(searchResponseJSON);
             System.exit(1);
         }
-        System.out.println(response.getAddress());
-        System.out.println(response.getName());
-        System.out.println(response.getPhoneNumber());
-        System.out.println(response.getLocationData());
-        System.out.println(response.getCity());
 
         return response;
     }

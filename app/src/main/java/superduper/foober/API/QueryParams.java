@@ -5,8 +5,8 @@ package superduper.foober.API;
  */
 public class QueryParams {
     public static class Builder {
-        private int limit = 3;
-        private int radiusFilter = 10;
+        private int limit = 1;
+        private int radiusFilter = 10000;
         private double latitude = 42.449650999999996, longitude = -76.4812924;
         private String term = "dinner";
         public QueryParams build() {

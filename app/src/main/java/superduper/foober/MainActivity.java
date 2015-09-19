@@ -5,7 +5,11 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import de.greenrobot.event.EventBus;
 import superduper.foober.Event.YelpEvent;
+import superduper.foober.Job.GetYelp;
+import superduper.foober.models.BusinessList;
+import superduper.foober.models.BusinessModel;
 
 public class MainActivity extends Activity {
 
@@ -13,6 +17,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        FooberApplication.getJobManager().addJobInBackground(new GetYelp());
     }
 
     @Override
@@ -38,6 +43,23 @@ public class MainActivity extends Activity {
     }
 
     public void onEventMainThread(YelpEvent yelpEvent) {
-        
+        BusinessList response = yelpEvent.businessList;
+        System.out.println(response.getBusinessList().get(0).getAddress());
+        System.out.println(response.getBusinessList().get(0).getName());
+        System.out.println(response.getBusinessList().get(0).getPhoneNumber());
+        System.out.println(response.getBusinessList().get(0).getLocationData());
+        System.out.println(response.getBusinessList().get(0).getCity());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 }
