@@ -1,16 +1,27 @@
 package superduper.foober;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends Activity {
+import com.google.android.gms.maps.*;
+
+public class MainActivity extends FragmentActivity {
+    mMapFragment = MapFragment.newInstance();
+    FragmentTransaction fragmentTransaction =
+            getFragmentManager().beginTransaction();
+    fragmentTransaction.add(R.id.my_container, mMapFragment);
+    fragmentTransaction.commit();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.layout.activity_main);
     }
 
     @Override
@@ -33,5 +44,10 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onMapReady (GoogleMap map) {
+        map.addMarker(new MarkerOptions().position(new LatLng()))
     }
 }
