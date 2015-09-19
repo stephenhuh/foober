@@ -23,10 +23,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -64,7 +68,7 @@ public class MainActivity extends Activity implements LocationListener {
                             Utils.CURRENT_LOCATION.getLatitude(), //Lat
                             Utils.CURRENT_LOCATION.getLongitude(), //Long
                             10000,//radius
-                            1,//limit
+                            5,//limit
                             mToEditText.getText().toString(),
                             address.getAddressLine(0)+","+address.getLocality()+" "+address.getPostalCode()
                     ));
@@ -108,14 +112,29 @@ public class MainActivity extends Activity implements LocationListener {
     
     public void onEventMainThread(YelpEvent yelpEvent) {
         BusinessList response = yelpEvent.businessList;
+        List<Marker> markers = new ArrayList<Marker>();
         List<BusinessModel> businessModels = response.getBusinessList();
         for(int x=0; x<response.getBusinessList().size(); x++) {
             BusinessModel business = businessModels.get(x);
-            String address = business.getAddress()+","+business.getCity()+" "+business.getLocationData().getPostalCode();
+            String address = business.getAddress()+", "+business.getCity()+" "+business.getLocationData().getPostalCode();
             Log.d("LOCATION: ",address);
             LatLng position = convertAddress(address);
-            mGoogleMap.addMarker(new MarkerOptions().position(position));
+            markers.add(mGoogleMap.addMarker(new MarkerOptions()
+                    .position(position)
+                    .title(business.getName())
+                    .snippet(business.getAddress())
+                    .icon(BitmapDescriptorFactory.defaultMarker(Utils.BLUE))));
+
         }
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (Marker marker : markers) {
+            builder.include(marker.getPosition());
+            marker.showInfoWindow();
+        }
+        LatLngBounds bounds = builder.build();
+        int padding = 20; // offset from edges of the map in pixels
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        mGoogleMap.animateCamera(cu);
     }
 
     public LatLng convertAddress(String address) {

@@ -2,7 +2,17 @@ package superduper.foober;
 
 import android.location.Location;
 
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+
 public class Utils {
+    public static final float ORANGE = BitmapDescriptorFactory.HUE_ORANGE;
+    public static final float RED = BitmapDescriptorFactory.HUE_RED;
+    public static final float BLUE = BitmapDescriptorFactory.HUE_BLUE;
+    public static final float GREEN = BitmapDescriptorFactory.HUE_GREEN;
+    public static final float CYAN = BitmapDescriptorFactory.HUE_CYAN;
+    public static final float YELLOW = BitmapDescriptorFactory.HUE_YELLOW;
+    public static final float VIOLET = BitmapDescriptorFactory.HUE_VIOLET;
+
     public static Location CURRENT_LOCATION;
 
     public static final int TEN_MINUTES = 1000 * 60 * 10;
