@@ -20,5 +20,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile files('libs/jcommander-1.35.jar')
+    compile files('libs/json_simple-1.1.jar')
+    compile files('libs/scribe-1.3.5.jar')
+    compile 'com.google.code.gson:gson:2.2.4'
 }
