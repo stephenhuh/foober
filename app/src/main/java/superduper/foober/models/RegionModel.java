@@ -7,18 +7,4 @@ public class RegionModel {
     public CenterModel getCenterModel() {
         return center;
     }
-
-    public class CenterModel{
-        private double latitude;
-
-        private double longitude;
-
-        public double getLatitude() {
-            return latitude;
-        }
-        public double getLongitude() {
-            return longitude;
-        }
-
-    }
 }
