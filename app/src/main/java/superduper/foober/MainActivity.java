@@ -21,6 +21,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
+        //If GPS is enabled, update the location. Else, show an alert dialog.
         if(mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             setLocation();
         } else {
@@ -50,6 +51,9 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Creates and alert dialog which displays to the user when Location services are not enabled.
+     */
     private void createNoGpsAlert() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -73,6 +77,9 @@ public class MainActivity extends Activity {
         mNoGpsAlertDialog.show();
     }
 
+    /**
+     * Sets the current location using GPS
+     */
     private void setLocation() {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
