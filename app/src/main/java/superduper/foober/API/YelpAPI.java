@@ -3,10 +3,6 @@ package superduper.foober.API;
 /**
  * Created by anhbui on 9/18/15.
  */
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -14,8 +10,9 @@ import org.scribe.model.Token;
 import org.scribe.model.Verb;
 import org.scribe.oauth.OAuthService;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.Parameter;
+import com.google.gson.Gson;
+
+import superduper.foober.models.BusinessModel;
 
 /**
  * Code sample for accessing the Yelp API V2.
@@ -121,30 +118,25 @@ public class YelpAPI {
      *
      * @param yelpApi <tt>YelpAPI</tt> service instance
      */
-    public static void queryAPI(YelpAPI yelpApi, QueryParams queryParams) {
+    public static BusinessModel queryAPI(YelpAPI yelpApi, QueryParams queryParams) {
         String searchResponseJSON =
                 yelpApi.searchForBusinessesByLocation(queryParams);
 
-        JSONParser parser = new JSONParser();
-        JSONObject response = null;
+        BusinessModel response = null;
+        Gson gson = new Gson();
         try {
-            response = (JSONObject) parser.parse(searchResponseJSON);
-        } catch (ParseException pe) {
+            response = gson.fromJson(searchResponseJSON, BusinessModel.class);
+        } catch (Exception pe) {
             System.out.println("Error: could not parse JSON response:");
             System.out.println(searchResponseJSON);
             System.exit(1);
         }
+        System.out.println(response.getAddress());
+        System.out.println(response.getName());
+        System.out.println(response.getPhoneNumber());
+        System.out.println(response.getLocationData());
+        System.out.println(response.getCity());
 
-        JSONArray businesses = (JSONArray) response.get("businesses");
-        JSONObject firstBusiness = (JSONObject) businesses.get(0);
-        String firstBusinessID = firstBusiness.get("id").toString();
-        System.out.println(String.format(
-                "%s businesses found, querying business info for the top result \"%s\" ...",
-                businesses.size(), firstBusinessID));
-
-        // Select the first business and display business details
-        String businessResponseJSON = yelpApi.searchByBusinessId(firstBusinessID.toString());
-        System.out.println(String.format("Result for business \"%s\" found:", firstBusinessID));
-        System.out.println(businessResponseJSON);
+        return response;
     }
 }
