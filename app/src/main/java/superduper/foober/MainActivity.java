@@ -9,7 +9,6 @@ import de.greenrobot.event.EventBus;
 import superduper.foober.Event.YelpEvent;
 import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
-import superduper.foober.models.BusinessModel;
 
 public class MainActivity extends Activity {
 
@@ -17,7 +16,13 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        FooberApplication.getJobManager().addJobInBackground(new GetYelp());
+        //TODO Remove test data in GetYelp when needed
+        FooberApplication.getJobManager().addJobInBackground(new GetYelp(
+                42.449650999999996, //Lat
+                -76.4812924, //Long
+                10000,//radius
+                1,//limit
+                "dinner"));
     }
 
     @Override

@@ -124,7 +124,6 @@ public class YelpAPI {
                 yelpApi.searchForBusinessesByLocation(queryParams);
 
         BusinessList response = null;
-        System.out.println(searchResponseJSON);
         Gson gson = new Gson();
         try {
             response = gson.fromJson(searchResponseJSON, BusinessList.class);
