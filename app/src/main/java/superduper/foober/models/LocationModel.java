@@ -9,6 +9,8 @@ public class LocationModel {
 
     private String country_code;
 
+    private String postal_code;
+
     public String getAddress() {
         return address.get(0);
     }
@@ -19,5 +21,9 @@ public class LocationModel {
 
     public String getCountryCode() {
         return country_code;
+    }
+
+    public String getPostalCode() {
+        return postal_code;
     }
 }

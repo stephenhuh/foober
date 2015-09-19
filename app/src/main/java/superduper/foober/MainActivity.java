@@ -5,37 +5,79 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
 import superduper.foober.Event.YelpEvent;
 import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
+import superduper.foober.models.BusinessModel;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
+    MapView mMapView;
+    GoogleMap mGoogleMap;
+    Button mAddButton;
+    EditText mToEditText;
+    Geocoder geocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        
-        //TODO Remove test data in GetYelp when needed
-        FooberApplication.getJobManager().addJobInBackground(new GetYelp(
-                42.449650999999996, //Lat
-                -76.4812924, //Long
-                10000,//radius
-                1,//limit
-                "dinner"));
+        mMapView = (MapView) findViewById(R.id.mapview);
+        mAddButton = (Button) findViewById(R.id.add_button);
+        mToEditText = (EditText) findViewById(R.id.to_edittext);
+
+        mAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    List<Address> addresses = geocoder.getFromLocation(Utils.CURRENT_LOCATION.getLatitude(),Utils.CURRENT_LOCATION.getLongitude(),1);
+                    Address address = addresses.get(0);
+                    FooberApplication.getJobManager().addJobInBackground(new GetYelp(
+                            Utils.CURRENT_LOCATION.getLatitude(), //Lat
+                            Utils.CURRENT_LOCATION.getLongitude(), //Long
+                            10000,//radius
+                            1,//limit
+                            mToEditText.getText().toString(),
+                            address.getAddressLine(0)+","+address.getLocality()+" "+address.getPostalCode()
+                    ));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         //If GPS is enabled, update the location. Else, show an alert dialog.
         if(mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             setLocation();
+            createMap(savedInstanceState);
         } else {
             createNoGpsAlert();
         }
@@ -66,11 +108,30 @@ public class MainActivity extends Activity {
     
     public void onEventMainThread(YelpEvent yelpEvent) {
         BusinessList response = yelpEvent.businessList;
-        System.out.println(response.getBusinessList().get(0).getAddress());
-        System.out.println(response.getBusinessList().get(0).getName());
-        System.out.println(response.getBusinessList().get(0).getPhoneNumber());
-        System.out.println(response.getBusinessList().get(0).getLocationData());
-        System.out.println(response.getBusinessList().get(0).getCity());
+        List<BusinessModel> businessModels = response.getBusinessList();
+        for(int x=0; x<response.getBusinessList().size(); x++) {
+            BusinessModel business = businessModels.get(x);
+            String address = business.getAddress()+","+business.getCity()+" "+business.getLocationData().getPostalCode();
+            Log.d("LOCATION: ",address);
+            LatLng position = convertAddress(address);
+            mGoogleMap.addMarker(new MarkerOptions().position(position));
+        }
+    }
+
+    public LatLng convertAddress(String address) {
+        if (address != null && !address.isEmpty()) {
+            try {
+                List<Address> addressList = geocoder.getFromLocationName(address, 1);
+                if (addressList != null && addressList.size() > 0) {
+                    double lat = addressList.get(0).getLatitude();
+                    double lng = addressList.get(0).getLongitude();
+                    return new LatLng(lat,lng);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } // end catch
+        } // end if
+        return null;
     }
 
     @Override
@@ -127,5 +188,70 @@ public class MainActivity extends Activity {
             }
         }
     }
-    
+
+    private void createMap(Bundle savedInstancestate) {
+        mMapView.onCreate(savedInstancestate);
+        mGoogleMap = mMapView.getMap();
+        MapsInitializer.initialize(this);
+        if(Utils.CURRENT_LOCATION != null) {
+            LatLng currLocation = new LatLng(Utils.CURRENT_LOCATION.getLatitude(), Utils.CURRENT_LOCATION.getLongitude());
+            mGoogleMap.addMarker(new MarkerOptions().position(currLocation));
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(currLocation,14);
+            mGoogleMap.animateCamera(cameraUpdate);
+        }
+
+    }
+
+    @Override
+    public void onResume() {
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Utils.TEN_MINUTES, 200, this);
+        super.onResume();
+        mMapView.onResume();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mMapView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mLocationManager.removeUpdates(this);
+        mMapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if(Utils.isBetterLocation(location,Utils.CURRENT_LOCATION)) {
+            Utils.CURRENT_LOCATION = location;
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+    @Override
+    public void onProviderEnabled(String provider) {}
+
+    @Override
+    public void onProviderDisabled(String provider) {}
 }

@@ -3,14 +3,16 @@ package superduper.foober.API.Yelp;
 /**
  * Created by anhbui on 9/18/15.
  */
+import android.util.Log;
+
+import com.google.gson.Gson;
+
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Token;
 import org.scribe.model.Verb;
 import org.scribe.oauth.OAuthService;
-
-import com.google.gson.Gson;
 
 import superduper.foober.models.BusinessList;
 
@@ -67,9 +69,10 @@ public class YelpAPI {
         double latitude = queryParams.latitude;
         int limit = queryParams.limit;
         int radiusFilter = queryParams.radiusFilter;
+        String ll = String.valueOf(latitude)+","+String.valueOf(longitude);
         request.addQuerystringParameter("radius_filter", String.valueOf(radiusFilter));
         request.addQuerystringParameter("term", term);
-        request.addQuerystringParameter("ll", String.valueOf(latitude) + ',' + String.valueOf(longitude));
+        request.addQuerystringParameter("location", queryParams.location);
         request.addQuerystringParameter("limit", String.valueOf(limit));
         return sendRequestAndGetResponse(request);
     }
@@ -121,6 +124,8 @@ public class YelpAPI {
     public static BusinessList queryAPI(YelpAPI yelpApi, QueryParams queryParams) {
         String searchResponseJSON =
                 yelpApi.searchForBusinessesByLocation(queryParams);
+
+        Log.d("RAW JSON: ",searchResponseJSON);
 
         BusinessList response = null;
         Gson gson = new Gson();

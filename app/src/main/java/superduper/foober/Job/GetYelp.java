@@ -17,14 +17,16 @@ public class GetYelp extends Job {
     private int radiusFilter;
     private int limit;
     private String term;
+    private String location;
 
-    public GetYelp(double latitude, double longitude, int radiusFilter, int limit, String term) {
+    public GetYelp(double latitude, double longitude, int radiusFilter, int limit, String term, String location) {
         super(new Params(1));
         this.latitude = latitude;
         this.longitude = longitude;
         this.radiusFilter = radiusFilter;
         this.limit = limit;
         this.term = term;
+        this.location = location;
     }
 
     @Override
@@ -40,6 +42,7 @@ public class GetYelp extends Job {
                 .setRadiusFilter(radiusFilter)
                 .setLimit(limit)
                 .setTerm(term)
+                .setLocation(location)
                 .build();
 
         EventBus.getDefault().post(new YelpEvent(yelpApi.queryAPI(yelpApi, queryParams)));
