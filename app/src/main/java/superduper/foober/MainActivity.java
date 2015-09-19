@@ -11,6 +11,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,15 +23,20 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
+
 import de.greenrobot.event.EventBus;
 import superduper.foober.Event.YelpEvent;
 import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
+import superduper.foober.models.BusinessModel;
 
 public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
     MapView mMapView;
     GoogleMap mGoogleMap;
+    Button mAddButton;
+    EditText mToEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +44,20 @@ public class MainActivity extends Activity implements LocationListener {
         setContentView(R.layout.activity_main);
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mMapView = (MapView) findViewById(R.id.mapview);
-        //TODO Remove test data in GetYelp when needed
-        FooberApplication.getJobManager().addJobInBackground(new GetYelp(
-                42.449650999999996, //Lat
-                -76.4812924, //Long
-                10000,//radius
-                1,//limit
-                "dinner"));
+        mAddButton = (Button) findViewById(R.id.add_button);
+        mToEditText = (EditText) findViewById(R.id.to_edittext);
+
+        mAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FooberApplication.getJobManager().addJobInBackground(new GetYelp(
+                        Utils.CURRENT_LOCATION.getLatitude(), //Lat
+                        Utils.CURRENT_LOCATION.getLongitude(), //Long
+                        10000,//radius
+                        1,//limit
+                        mToEditText.getText().toString()));
+            }
+        });
 
         //If GPS is enabled, update the location. Else, show an alert dialog.
         if(mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -78,11 +93,12 @@ public class MainActivity extends Activity implements LocationListener {
     
     public void onEventMainThread(YelpEvent yelpEvent) {
         BusinessList response = yelpEvent.businessList;
-        System.out.println(response.getBusinessList().get(0).getAddress());
-        System.out.println(response.getBusinessList().get(0).getName());
-        System.out.println(response.getBusinessList().get(0).getPhoneNumber());
-        System.out.println(response.getBusinessList().get(0).getLocationData());
-        System.out.println(response.getBusinessList().get(0).getCity());
+        List<BusinessModel> businessModels = response.getBusinessList();
+        for(int x=0; x<response.getBusinessList().size(); x++) {
+            BusinessModel business = businessModels.get(x);
+            LatLng position = new LatLng(business.getLatitude(), business.getLongitude());
+            mGoogleMap.addMarker(new MarkerOptions().position(position));
+        }
     }
 
     @Override

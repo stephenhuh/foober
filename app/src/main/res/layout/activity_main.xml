@@ -9,6 +9,7 @@
         android:layout_height="wrap_content">
         <EditText
             android:id="@+id/from_edittext"
+            android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="From"/>
@@ -21,10 +22,17 @@
         android:layout_below="@id/from_textinputlayer">
         <EditText
             android:id="@+id/to_edittext"
+            android:singleLine="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="To"/>
     </android.support.design.widget.TextInputLayout>
+    <Button
+        android:id="@+id/add_button"
+        android:text="Add to list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/to_textinputlayer"/>
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapview"

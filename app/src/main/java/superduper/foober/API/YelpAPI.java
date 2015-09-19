@@ -3,6 +3,8 @@ package superduper.foober.API;
 /**
  * Created by anhbui on 9/18/15.
  */
+import com.google.gson.Gson;
+
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -10,10 +12,7 @@ import org.scribe.model.Token;
 import org.scribe.model.Verb;
 import org.scribe.oauth.OAuthService;
 
-import com.google.gson.Gson;
-
 import superduper.foober.models.BusinessList;
-import superduper.foober.models.BusinessModel;
 
 /**
  * Code sample for accessing the Yelp API V2.
@@ -70,7 +69,7 @@ public class YelpAPI {
         int radiusFilter = queryParams.radiusFilter;
         request.addQuerystringParameter("radius_filter", String.valueOf(radiusFilter));
         request.addQuerystringParameter("term", term);
-        request.addQuerystringParameter("ll", String.valueOf(latitude) + ',' + String.valueOf(longitude));
+        request.addQuerystringParameter("ll", String.valueOf(latitude) + "," + String.valueOf(longitude));
         request.addQuerystringParameter("limit", String.valueOf(limit));
         return sendRequestAndGetResponse(request);
     }
