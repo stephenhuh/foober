@@ -3,8 +3,11 @@ package superduper.foober;
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.lukedeighton.wheelview.WheelView;
@@ -57,14 +60,36 @@ public class WheelActivity extends Activity {
         //initialise the selection drawable with the first contrast color
         wheelView.setSelectionColor(getContrastColor(entries.get(0)));
 
-        /*
-        new Handler().postDelayed(new Runnable() {
+        final Handler handler = new Handler();
+        final Runnable spinning = new Runnable() {
+            int iterPosition = 0;
+            int slowingDown = 100;
+            int decceleration = 1;
+
             @Override
             public void run() {
-                //wheelView.setSelectionAngle(-wheelView.getAngleForPosition(5));
-                wheelView.setMidSelected();
+                wheelView.setAngle(-wheelView.getAngleForPosition(iterPosition));
+                iterPosition = ++iterPosition % 10;
+                if (slowingDown < 3400) {
+                    handler.postDelayed(this, slowingDown/4);
+                    slowingDown += decceleration*decceleration;
+                    if (slowingDown > 200) decceleration++;
+                }
             }
-        }, 3000); */
+        };
+
+        handler.postDelayed(spinning, 500);
+        final ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        View.OnClickListener clickListener = new View.OnClickListener() {
+            public void onClick(View v) {
+                if (v.equals(imageView)) {
+                    handler.postDelayed(spinning, 500);
+                }
+            }
+        };
+        imageView.setOnClickListener(clickListener);
+
+        int choice = wheelView.getSelectedPosition();
     }
 
     @Override
