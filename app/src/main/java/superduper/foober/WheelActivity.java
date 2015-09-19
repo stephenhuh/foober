@@ -15,6 +15,7 @@ import com.lukedeighton.wheelview.WheelView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import superduper.foober.WheelView.MaterialColor;
 import superduper.foober.WheelView.YelpBusinessAdapter;
@@ -22,6 +23,7 @@ import superduper.foober.WheelView.YelpBusinessAdapter;
 public class WheelActivity extends Activity {
 
     private static final int ITEM_COUNT = 10;
+    private static Random randomGenerator = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,29 +63,13 @@ public class WheelActivity extends Activity {
         wheelView.setSelectionColor(getContrastColor(entries.get(0)));
 
         final Handler handler = new Handler();
-        final Runnable spinning = new Runnable() {
-            int iterPosition = 0;
-            int slowingDown = 100;
-            int decceleration = 1;
 
-            @Override
-            public void run() {
-                wheelView.setAngle(-wheelView.getAngleForPosition(iterPosition));
-                iterPosition = ++iterPosition % 10;
-                if (slowingDown < 3400) {
-                    handler.postDelayed(this, slowingDown/4);
-                    slowingDown += decceleration*decceleration;
-                    if (slowingDown > 200) decceleration++;
-                }
-            }
-        };
-
-        handler.postDelayed(spinning, 500);
+        handler.postDelayed(new Spinning(wheelView, handler), 500);
         final ImageView imageView = (ImageView) findViewById(R.id.imageView);
         View.OnClickListener clickListener = new View.OnClickListener() {
             public void onClick(View v) {
                 if (v.equals(imageView)) {
-                    handler.postDelayed(spinning, 500);
+                    handler.postDelayed(new Spinning(wheelView, handler), 0);
                 }
             }
         };
@@ -92,6 +78,29 @@ public class WheelActivity extends Activity {
         int choice = wheelView.getSelectedPosition();
     }
 
+    private static class Spinning implements Runnable {
+        private Handler handler;
+        private WheelView wheelView;
+        int iterPosition = randomGenerator.nextInt(10);
+        int slowingDown = 100;
+        int decceleration = 1;
+
+        public Spinning(WheelView wheelView, Handler handler) {
+            this.wheelView = wheelView;
+            this.handler = handler;
+        }
+
+        @Override
+        public void run() {
+            wheelView.setAngle(-wheelView.getAngleForPosition(iterPosition));
+            iterPosition = ++iterPosition % 10;
+            if (slowingDown < 3400) {
+                handler.postDelayed(this, slowingDown/4);
+                slowingDown += decceleration*decceleration;
+                if (slowingDown > 200) decceleration++;
+            }
+        }
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
