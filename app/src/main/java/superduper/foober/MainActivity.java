@@ -6,25 +6,36 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import de.greenrobot.event.EventBus;
 import superduper.foober.Event.YelpEvent;
 import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
+    MapView mMapView;
+    GoogleMap mGoogleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        
+        mMapView = (MapView) findViewById(R.id.mapview);
         //TODO Remove test data in GetYelp when needed
         FooberApplication.getJobManager().addJobInBackground(new GetYelp(
                 42.449650999999996, //Lat
@@ -36,6 +47,7 @@ public class MainActivity extends Activity {
         //If GPS is enabled, update the location. Else, show an alert dialog.
         if(mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             setLocation();
+            createMap(savedInstanceState);
         } else {
             createNoGpsAlert();
         }
@@ -127,5 +139,55 @@ public class MainActivity extends Activity {
             }
         }
     }
-    
+
+    private void createMap(Bundle savedInstancestate) {
+        mMapView.onCreate(savedInstancestate);
+        mGoogleMap = mMapView.getMap();
+        MapsInitializer.initialize(this);
+        LatLng currLocation = new LatLng(Utils.CURRENT_LOCATION.getLatitude(), Utils.CURRENT_LOCATION.getLongitude());
+        mGoogleMap.addMarker(new MarkerOptions().position(currLocation));
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(currLocation,14);
+        mGoogleMap.animateCamera(cameraUpdate);
+    }
+
+    @Override
+    public void onResume() {
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, Utils.TEN_MINUTES, 200, this);
+        mMapView.onResume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        mLocationManager.removeUpdates(this);
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if(Utils.isBetterLocation(location,Utils.CURRENT_LOCATION)) {
+            Utils.CURRENT_LOCATION = location;
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+    @Override
+    public void onProviderEnabled(String provider) {}
+
+    @Override
+    public void onProviderDisabled(String provider) {}
 }
