@@ -5,12 +5,24 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import de.greenrobot.event.EventBus;
+import superduper.foober.Event.YelpEvent;
+import superduper.foober.Job.GetYelp;
+import superduper.foober.models.BusinessList;
+
 public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //TODO Remove test data in GetYelp when needed
+        FooberApplication.getJobManager().addJobInBackground(new GetYelp(
+                42.449650999999996, //Lat
+                -76.4812924, //Long
+                10000,//radius
+                1,//limit
+                "dinner"));
     }
 
     @Override
@@ -33,5 +45,26 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onEventMainThread(YelpEvent yelpEvent) {
+        BusinessList response = yelpEvent.businessList;
+        System.out.println(response.getBusinessList().get(0).getAddress());
+        System.out.println(response.getBusinessList().get(0).getName());
+        System.out.println(response.getBusinessList().get(0).getPhoneNumber());
+        System.out.println(response.getBusinessList().get(0).getLocationData());
+        System.out.println(response.getBusinessList().get(0).getCity());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 }
