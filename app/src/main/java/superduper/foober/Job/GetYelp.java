@@ -4,8 +4,8 @@ import com.path.android.jobqueue.Job;
 import com.path.android.jobqueue.Params;
 
 import de.greenrobot.event.EventBus;
-import superduper.foober.API.QueryParams;
-import superduper.foober.API.YelpAPI;
+import superduper.foober.API.Yelp.QueryParams;
+import superduper.foober.API.Yelp.YelpAPI;
 import superduper.foober.Event.YelpEvent;
 
 /**

@@ -1,4 +1,4 @@
-package superduper.foober.API;
+package superduper.foober.API.Yelp;
 
 /**
  * Created by anhbui on 9/18/15.
@@ -13,7 +13,6 @@ import org.scribe.oauth.OAuthService;
 import com.google.gson.Gson;
 
 import superduper.foober.models.BusinessList;
-import superduper.foober.models.BusinessModel;
 
 /**
  * Code sample for accessing the Yelp API V2.
