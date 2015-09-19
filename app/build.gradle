@@ -10,6 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        //multiDexEnabled true
     }
     buildTypes {
         release {
@@ -21,4 +22,10 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    apply plugin: 'android'
+    compile 'com.google.android.gms:play-services:7.8.0'
+    compile 'com.google.maps.android:android-maps-utils:0.4+'
+
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
 }
