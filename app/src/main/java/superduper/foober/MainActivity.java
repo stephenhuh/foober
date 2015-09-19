@@ -15,8 +15,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -33,6 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import de.greenrobot.event.EventBus;
 import superduper.foober.Event.YelpEvent;
@@ -47,6 +50,8 @@ public class MainActivity extends Activity implements LocationListener {
     Button mAddButton;
     EditText mToEditText;
     Geocoder geocoder;
+    Random generator = new Random();
+    List<Marker> markers = new ArrayList<Marker>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,9 +116,12 @@ public class MainActivity extends Activity implements LocationListener {
     }
     
     public void onEventMainThread(YelpEvent yelpEvent) {
+        Toast.makeText(this,mToEditText.getText().toString()+" Added!",Toast.LENGTH_SHORT).show();
+        mToEditText.setText("");
+        hideKeyboard();
         BusinessList response = yelpEvent.businessList;
-        List<Marker> markers = new ArrayList<Marker>();
         List<BusinessModel> businessModels = response.getBusinessList();
+        int color = generator.nextInt(10)+1;
         for(int x=0; x<response.getBusinessList().size(); x++) {
             BusinessModel business = businessModels.get(x);
             String address = business.getAddress()+", "+business.getCity()+" "+business.getLocationData().getPostalCode();
@@ -123,18 +131,24 @@ public class MainActivity extends Activity implements LocationListener {
                     .position(position)
                     .title(business.getName())
                     .snippet(business.getAddress())
-                    .icon(BitmapDescriptorFactory.defaultMarker(Utils.BLUE))));
-
+                    .icon(BitmapDescriptorFactory.defaultMarker(Utils.COLORS[color]))));
         }
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (Marker marker : markers) {
             builder.include(marker.getPosition());
-            marker.showInfoWindow();
         }
         LatLngBounds bounds = builder.build();
-        int padding = 20; // offset from edges of the map in pixels
+        int padding = 350; // offset from edges of the map in pixels
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mGoogleMap.animateCamera(cu);
+    }
+
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     public LatLng convertAddress(String address) {
@@ -214,7 +228,7 @@ public class MainActivity extends Activity implements LocationListener {
         MapsInitializer.initialize(this);
         if(Utils.CURRENT_LOCATION != null) {
             LatLng currLocation = new LatLng(Utils.CURRENT_LOCATION.getLatitude(), Utils.CURRENT_LOCATION.getLongitude());
-            mGoogleMap.addMarker(new MarkerOptions().position(currLocation));
+            markers.add(mGoogleMap.addMarker(new MarkerOptions().position(currLocation)));
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(currLocation,14);
             mGoogleMap.animateCamera(cameraUpdate);
         }
