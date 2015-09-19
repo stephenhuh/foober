@@ -16,6 +16,8 @@ public class BusinessModel {
 
     private Integer review_count;
 
+    private RegionModel region;
+
     public boolean isClosed() {
         return is_closed;
     }
@@ -54,5 +56,12 @@ public class BusinessModel {
 
     public Integer getReviewCount() {
         return review_count;
+    }
+
+    public double getLatitude() {
+        return region.getCenterModel().getLatitude();
+    }
+    public double getLongitude() {
+        return region.getCenterModel().getLongitude();
     }
 }
