@@ -15,6 +15,8 @@ public class BusinessModel {
     private String rating_img_url_small;
 
     private Integer review_count;
+    private String snippet_text;
+    private String snippet_image_url;
 
     public boolean isClosed() {
         return is_closed;
@@ -55,4 +57,8 @@ public class BusinessModel {
     public Integer getReviewCount() {
         return review_count;
     }
+
+    public String getDescription() { return snippet_text; }
+
+    public String getSnippetUrl() { return snippet_image_url; }
 }

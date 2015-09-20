@@ -18,6 +18,15 @@
         app:wheelPadding="13dp"
         app:wheelItemRadius="15dp"/>
 
+    <Button
+        android:id="@+id/confirm_btn"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:text="Call Uber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

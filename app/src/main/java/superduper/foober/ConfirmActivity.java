@@ -18,7 +18,7 @@ public class ConfirmActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm);
         String description = getIntent().getStringExtra("description");
-        String imageUrl = getIntent().getStringExtra("image_url");
+        String imageUrl = getIntent().getStringExtra("snippet_image_url");
 
         mImageView = (ImageView) findViewById(R.id.yelp_imageview);
         mDescriptionTextView = (TextView) findViewById(R.id.description_textview);

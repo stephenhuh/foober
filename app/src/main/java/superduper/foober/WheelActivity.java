@@ -1,12 +1,14 @@
 package superduper.foober;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -25,6 +27,7 @@ import superduper.foober.models.BusinessList;
 public class WheelActivity extends Activity {
 
     private int itemCount = 10;
+    private static int choice;
     private static Random randomGenerator = new Random();
 
     @Override
@@ -34,7 +37,7 @@ public class WheelActivity extends Activity {
 
         // get yelp businesses chosen
         String json = getIntent().getExtras().getString("businesses_json");
-        BusinessList businesses = new Gson().fromJson(json, BusinessList.class);
+        final BusinessList businesses = new Gson().fromJson(json, BusinessList.class);
         itemCount = businesses.getBusinessList().size();
 
         final WheelView wheelView = (WheelView) findViewById(R.id.wheelview);
@@ -83,9 +86,18 @@ public class WheelActivity extends Activity {
         };
         imageView.setOnClickListener(clickListener);
 
-        int choice = wheelView.getSelectedPosition();
+        Button confirm = (Button) findViewById(R.id.confirm_btn);
 
-
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(WheelActivity.this, ConfirmActivity.class);
+                intent.putExtra("image_url", businesses.getBusinessList().get(choice).getImageUrl());
+                intent.putExtra("description", businesses.getBusinessList().get(choice).getDescription());
+                intent.putExtra("snippet_image_url", businesses.getBusinessList().get(choice).getSnippetUrl());
+                startActivity(intent);
+            }
+        });
     }
 
     private static class Spinning implements Runnable {
@@ -108,6 +120,9 @@ public class WheelActivity extends Activity {
                 handler.postDelayed(this, slowingDown/4);
                 slowingDown += decceleration*decceleration;
                 if (slowingDown > 200) decceleration++;
+            }
+            else {
+                choice = wheelView.getSelectedPosition();
             }
         }
     }
