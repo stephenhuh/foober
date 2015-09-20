@@ -34,8 +34,10 @@ import org.scribe.model.Token;
 import org.scribe.model.Verifier;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import de.greenrobot.event.EventBus;
 import superduper.foober.API.Uber.MyConstants;
@@ -53,11 +55,17 @@ import superduper.foober.models.HistoryModel;
 
 public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
+    Gson gson = new Gson();
     MapView mMapView;
     GoogleMap mGoogleMap;
     Button mAddButton;
+    Button mPickButton;
     EditText mToEditText;
     Geocoder geocoder;
+    Random generator = new Random();
+    NumberPicker mPickNumber;
+    List<Marker> markers = new ArrayList<Marker>();
+    ArrayList<BusinessModel> businessModelList = new ArrayList<>();
     final UberAPI uberApi = new UberAPI();
 
 
@@ -75,6 +83,8 @@ public class MainActivity extends Activity implements LocationListener {
         mMapView.setVisibility(View.GONE);
         mAddButton.setVisibility(View.GONE);
         mToEditText.setVisibility(View.GONE);
+        mPickButton = (Button) findViewById(R.id.random_pick_button);
+        mPickNumber = (NumberPicker) findViewById(R.id.numberPicker);
 
         final WebView webView = (WebView) findViewById(R.id.main_activity_web_view);
         webView.getSettings().setDomStorageEnabled(true);
@@ -121,6 +131,19 @@ public class MainActivity extends Activity implements LocationListener {
         webView.loadUrl(authUrl);
 
 
+        mPickNumber = (NumberPicker) findViewById(R.id.numberPicker);
+        mPickNumber.setMaxValue(100);
+        mPickNumber.setMinValue(0);
+        mPickNumber.setWrapSelectorWheel(true);
+
+        mPickButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String data = gson.toJson(businessModelList);
+                Log.d("DATA: ", data);
+            }
+        });
+
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,8 +153,8 @@ public class MainActivity extends Activity implements LocationListener {
                     FooberApplication.getJobManager().addJobInBackground(new GetYelp(
                             Utils.CURRENT_LOCATION.getLatitude(), //Lat
                             Utils.CURRENT_LOCATION.getLongitude(), //Long
-                            10000,//radius
-                            1,//limit
+                            mPickNumber.getValue()*1609,//radius = miles*meters/mile = meters
+                            15,//limit
                             mToEditText.getText().toString(),
                             address.getAddressLine(0)+","+address.getLocality()+" "+address.getPostalCode()
                     ));
@@ -188,14 +211,41 @@ public class MainActivity extends Activity implements LocationListener {
     }
     
     public void onEventMainThread(YelpEvent yelpEvent) {
+        Toast.makeText(this,mToEditText.getText().toString()+" Added!",Toast.LENGTH_SHORT).show();
+        mToEditText.setText("");
+        hideKeyboard();
         BusinessList response = yelpEvent.businessList;
         List<BusinessModel> businessModels = response.getBusinessList();
+        int color = generator.nextInt(10)+1;
         for(int x=0; x<response.getBusinessList().size(); x++) {
             BusinessModel business = businessModels.get(x);
-            String address = business.getAddress()+","+business.getCity()+" "+business.getLocationData().getPostalCode();
+            businessModelList.add(business);
+            String address = business.getAddress()+", "+business.getCity()+" "+business.getLocationData().getPostalCode();
             Log.d("LOCATION: ",address);
             LatLng position = convertAddress(address);
-            mGoogleMap.addMarker(new MarkerOptions().position(position));
+            if(position != null) {
+                markers.add(mGoogleMap.addMarker(new MarkerOptions()
+                        .position(position)
+                        .title(business.getName())
+                        .snippet(business.getAddress())
+                        .icon(BitmapDescriptorFactory.defaultMarker(Utils.COLORS[color]))));
+            }
+        }
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (Marker marker : markers) {
+            builder.include(marker.getPosition());
+        }
+        LatLngBounds bounds = builder.build();
+        int padding = 350; // offset from edges of the map in pixels
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+        mGoogleMap.animateCamera(cu);
+    }
+
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
@@ -276,7 +326,7 @@ public class MainActivity extends Activity implements LocationListener {
         MapsInitializer.initialize(this);
         if(Utils.CURRENT_LOCATION != null) {
             LatLng currLocation = new LatLng(Utils.CURRENT_LOCATION.getLatitude(), Utils.CURRENT_LOCATION.getLongitude());
-            mGoogleMap.addMarker(new MarkerOptions().position(currLocation));
+            markers.add(mGoogleMap.addMarker(new MarkerOptions().position(currLocation)));
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(currLocation,14);
             mGoogleMap.animateCamera(cameraUpdate);
         }
