@@ -26,6 +26,7 @@
             android:label="@string/title_activity_wheel"
             android:exported="true">
         </activity>
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDicqGkZ088--b_5QQQEPNAERaEWB1fBIo"/>
     </application>
 
 </manifest>

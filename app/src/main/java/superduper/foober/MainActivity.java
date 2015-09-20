@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,13 +46,16 @@ import superduper.foober.models.BusinessModel;
 
 public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
+    Gson gson = new Gson();
     MapView mMapView;
     GoogleMap mGoogleMap;
     Button mAddButton;
+    Button mPickButton;
     EditText mToEditText;
     Geocoder geocoder;
     Random generator = new Random();
     List<Marker> markers = new ArrayList<Marker>();
+    ArrayList<BusinessModel> businessModelList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,15 @@ public class MainActivity extends Activity implements LocationListener {
         mMapView = (MapView) findViewById(R.id.mapview);
         mAddButton = (Button) findViewById(R.id.add_button);
         mToEditText = (EditText) findViewById(R.id.to_edittext);
+        mPickButton = (Button) findViewById(R.id.random_pick_button);
+
+        mPickButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String data = gson.toJson(businessModelList);
+                Log.d("DATA: ", data);
+            }
+        });
 
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,14 +137,17 @@ public class MainActivity extends Activity implements LocationListener {
         int color = generator.nextInt(10)+1;
         for(int x=0; x<response.getBusinessList().size(); x++) {
             BusinessModel business = businessModels.get(x);
+            businessModelList.add(business);
             String address = business.getAddress()+", "+business.getCity()+" "+business.getLocationData().getPostalCode();
             Log.d("LOCATION: ",address);
             LatLng position = convertAddress(address);
-            markers.add(mGoogleMap.addMarker(new MarkerOptions()
-                    .position(position)
-                    .title(business.getName())
-                    .snippet(business.getAddress())
-                    .icon(BitmapDescriptorFactory.defaultMarker(Utils.COLORS[color]))));
+            if(position != null) {
+                markers.add(mGoogleMap.addMarker(new MarkerOptions()
+                        .position(position)
+                        .title(business.getName())
+                        .snippet(business.getAddress())
+                        .icon(BitmapDescriptorFactory.defaultMarker(Utils.COLORS[color]))));
+            }
         }
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (Marker marker : markers) {

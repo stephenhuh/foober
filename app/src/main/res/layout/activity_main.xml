@@ -33,6 +33,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/to_textinputlayer"/>
+    <Button
+        android:text="Pick"
+        android:id="@+id/random_pick_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/add_button"
+        android:layout_alignTop="@id/add_button"
+        android:layout_marginLeft="30dp"/>
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapview"
