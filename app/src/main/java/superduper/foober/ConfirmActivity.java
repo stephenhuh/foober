@@ -131,7 +131,7 @@ public class ConfirmActivity extends Activity {
         }
         else {
             request_estimate = ((RequestEstimateModel) event.getValue());
-            String output = "Price Estimates:"+ String.valueOf(request_estimate.getPrice().getHighEstimate())+" dollars\n"
+            String output = "Do you want to call Uber?\nPrice Estimates:"+ String.valueOf(request_estimate.getPrice().getHighEstimate())+" dollars\n"
                     + "Pickup Estimate:" + String.valueOf(request_estimate.getPickupEstimate())+" minutes\n"
                     + "Duration Estimate: " + String.valueOf(request_estimate.getTrip().getEstimate()) + " seconds\n";
             mPriceEstimateTextView.setText(output);
