@@ -21,7 +21,7 @@ import superduper.foober.WheelView.MaterialColor;
 import superduper.foober.WheelView.YelpBusinessAdapter;
 
 public class WheelActivity extends Activity {
-
+    public final static List<Map.Entry<String, Integer>> entries = "com.superduper.foober.ENTRIES";
     private static final int ITEM_COUNT = 10;
     private static Random randomGenerator = new Random();
 
@@ -32,7 +32,7 @@ public class WheelActivity extends Activity {
 
         final WheelView wheelView = (WheelView) findViewById(R.id.wheelview);
         //create data for the adapter
-        List<Map.Entry<String, Integer>> entries = new ArrayList<Map.Entry<String, Integer>>(ITEM_COUNT);
+        //List<Map.Entry<String, Integer>> entries = new ArrayList<Map.Entry<String, Integer>>(ITEM_COUNT);
         for (int i = 0; i < ITEM_COUNT; i++) {
             Map.Entry<String, Integer> entry = MaterialColor.random(this, "\\D*_500$");
             entries.add(entry);
