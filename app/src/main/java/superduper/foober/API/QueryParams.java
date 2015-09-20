@@ -1,4 +1,4 @@
-package superduper.foober.API.Yelp;
+package superduper.foober.API;
 
 /**
  * Created by anhbui on 9/19/15.

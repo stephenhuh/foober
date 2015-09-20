@@ -2,6 +2,11 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" tools:context=".MainActivity">
 
+    <WebView
+        android:id="@+id/main_activity_web_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <android.support.design.widget.TextInputLayout
         android:padding="8dp"
         android:id="@+id/from_textinputlayer"

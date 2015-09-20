@@ -10,11 +10,14 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -26,15 +29,27 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.scribe.extractors.HeaderExtractorImpl;
+import org.scribe.model.Token;
+import org.scribe.model.Verifier;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
 import de.greenrobot.event.EventBus;
+import superduper.foober.API.Uber.MyConstants;
+import superduper.foober.API.Uber.UberAPI;
+import superduper.foober.Event.UberAccessTokenEvent;
+import superduper.foober.Event.UberEvent;
 import superduper.foober.Event.YelpEvent;
+import superduper.foober.Job.GetUber;
+import superduper.foober.Job.GetUberAccessToken;
 import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
 import superduper.foober.models.BusinessModel;
+import superduper.foober.models.HistoryList;
+import superduper.foober.models.HistoryModel;
 
 public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
@@ -43,16 +58,68 @@ public class MainActivity extends Activity implements LocationListener {
     Button mAddButton;
     EditText mToEditText;
     Geocoder geocoder;
+    final UberAPI uberApi = new UberAPI();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mMapView = (MapView) findViewById(R.id.mapview);
         mAddButton = (Button) findViewById(R.id.add_button);
         mToEditText = (EditText) findViewById(R.id.to_edittext);
+        mMapView.setVisibility(View.GONE);
+        mAddButton.setVisibility(View.GONE);
+        mToEditText.setVisibility(View.GONE);
+
+        final WebView webView = (WebView) findViewById(R.id.main_activity_web_view);
+        webView.getSettings().setDomStorageEnabled(true);
+        webView.getSettings().setJavaScriptEnabled(true);
+        //Request focus for the webview
+        webView.requestFocus(View.FOCUS_DOWN);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String authorizationUrl) {
+                //This method will be called when the Auth proccess redirect to our RedirectUri.
+                //We will check the url looking for our RedirectUri.
+                Log.i("authorized!!!!!", authorizationUrl);
+                if (authorizationUrl.startsWith(MyConstants.UBER_REDIRECT_URL)) {
+                    Uri uri = Uri.parse(authorizationUrl);
+                    //We take from the url the authorizationToken and the state token. We have to check that the state token returned by the Service is the same we sent.
+                    //If not, that means the request may be a result of CSRF and must be rejected.
+                    String stateToken = uri.getQueryParameter("state");
+
+                    //If the user doesn't allow authorization to our application, the authorizationToken Will be null.
+                    String authorizationToken = uri.getQueryParameter("code");
+                    if (authorizationToken == null) {
+                        Log.i("Authorize", "The user doesn't allow authorization.");
+                        return true;
+                    }
+                    Log.i("Authorize", "Auth token received: " + authorizationToken);
+
+                    //Generate URL for requesting Access Token
+                    FooberApplication.getJobManager().addJobInBackground(new GetUberAccessToken(1,
+                            uberApi, authorizationToken));
+                } else {
+                    //Default behaviour
+                    Log.i("Authorize", "Redirecting to: " + authorizationUrl);
+                    webView.loadUrl(authorizationUrl);
+                }
+                return true;
+            }
+        });
+
+
+        //Get the authorization Url
+        String authUrl = uberApi.getAuthorizationUrl();
+        Log.i("Authorize","Loading Auth Url: "+authUrl);
+        //Load the authorization URL into the webView
+        webView.loadUrl(authUrl);
+
 
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +171,20 @@ public class MainActivity extends Activity implements LocationListener {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onEventMainThread(UberEvent uberEvent) {
+        List<HistoryModel> historyList = uberEvent.historyList.getHistoryList();
+        Log.i("user city", historyList.get(0).getStartCity().getDisplayName());
+    }
+
+    public void onEventMainThread(UberAccessTokenEvent uberAccessTokenEvent) {
+        uberApi.setAccessToken(uberAccessTokenEvent.accessToken);
+        mMapView.setVisibility(View.VISIBLE);
+        mAddButton.setVisibility(View.VISIBLE);
+        mToEditText.setVisibility(View.VISIBLE);
+        // TEST QUERIISE
+        FooberApplication.getJobManager().addJobInBackground((new GetUber(1, uberApi)));
     }
     
     public void onEventMainThread(YelpEvent yelpEvent) {

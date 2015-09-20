@@ -1,109 +1,67 @@
 package superduper.foober.API.Uber;
 
-import org.scribe.builder.api.DefaultApi20;
-import org.scribe.exceptions.OAuthException;
-import org.scribe.extractors.AccessTokenExtractor;
-import org.scribe.model.OAuthConfig;
-import org.scribe.model.OAuthConstants;
+import android.util.Log;
+
+import com.google.gson.Gson;
+
+import org.scribe.builder.ServiceBuilder;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Token;
 import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
-import org.scribe.oauth.OAuth20ServiceImpl;
 import org.scribe.oauth.OAuthService;
-import org.scribe.utils.OAuthEncoder;
-import org.scribe.utils.Preconditions;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import superduper.foober.API.QueryParams;
+import superduper.foober.models.HistoryList;
+import superduper.foober.models.HistoryModel;
 
 /**
  * Created by anhbui on 9/19/15.
  */
-public class UberAPI extends DefaultApi20 {
-    private static final String API_HOST = "https://api.uber.com/";
-    private static final String AUTHORIZE_URL = "https://login.uber.com/oauth/authorize?response_type=code&client_id=%s&redirect_uri=%s";
-    private static final String
+public class UberAPI {
+    private final OAuthService service;
+    private final String userHistory = "/v1.2/history";
+    private Token accessToken;
 
-    @Override
-    public String getAccessTokenEndpoint() {
-        return "https://login.uber.com/oauth/token";
+    public UberAPI() {
+        this.service =
+                new ServiceBuilder().provider(UberAPIOAuth.class)
+                        .apiKey(MyConstants.UBER_CLIENT_ID)
+                        .apiSecret(MyConstants.UBER_CLIENT_SECRET)
+                        .callback(MyConstants.UBER_REDIRECT_URL)
+                        .scope("history")
+                        .build();
     }
 
-    @Override
-    public AccessTokenExtractor getAccessTokenExtractor() {
-        return new AccessTokenExtractor() {
-
-            @Override
-            public Token extract(String response) {
-                Preconditions.checkEmptyString(response, "Response body is incorrect. Can't extract a token from an empty string");
-
-                Matcher matcher = Pattern.compile("\"access_token\" : \"([^&\"]+)\"").matcher(response);
-                if (matcher.find())
-                {
-                    String token = OAuthEncoder.decode(matcher.group(1));
-                    return new Token(token, "", response);
-                }
-                else
-                {
-                    throw new OAuthException("Response body is incorrect. Can't extract a token from this: '" + response + "'", null);
-                }
-            }
-        };
+    public void setAccessToken(Token token) {
+        this.accessToken = token;
     }
 
-    @Override
-    public String getAuthorizationUrl(OAuthConfig config) {
-        return String.format(AUTHORIZE_URL, config.getApiKey(),
-                OAuthEncoder.encode(config.getCallback()));
+    public String getAuthorizationUrl() {
+        return service.getAuthorizationUrl(new Token(MyConstants.UBER_CLIENT_ID, MyConstants.UBER_CLIENT_SECRET));
     }
 
-    @Override
-    public Verb getAccessTokenVerb() {
-        return Verb.POST;
-    }
+    public HistoryList queryApi(String endpoint, QueryParams queryParams) {
+        String url = MyConstants.UBER_API_URL + endpoint;
+        OAuthRequest request = new OAuthRequest(Verb.GET, url);
+        service.signRequest(accessToken, request);
+        String searchResponseJSON = request.send().getBody();
 
-    @Override
-    public OAuthService createService(OAuthConfig config) {
-        return new UberOAuth2Service(this, config);
-    }
-
-    private class UberOAuth2Service extends OAuth20ServiceImpl {
-
-        private static final String GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
-        private static final String GRANT_TYPE = "grant_type";
-        private DefaultApi20 api;
-        private OAuthConfig config;
-
-        public UberOAuth2Service(DefaultApi20 api, OAuthConfig config) {
-            super(api, config);
-            this.api = api;
-            this.config = config;
+        Log.d("RAW JSON: ", searchResponseJSON);
+        HistoryList response = null;
+        Gson gson = new Gson();
+        try {
+            response = gson.fromJson(searchResponseJSON, HistoryList.class);
+        } catch (Exception pe) {
+            System.out.println("Error: could not parse JSON response:");
+            System.out.println(searchResponseJSON);
+            System.exit(1);
         }
+        return response;
+    }
 
-        @Override
-        public Token getAccessToken(Token requestToken, Verifier verifier) {
-            OAuthRequest request = new OAuthRequest(api.getAccessTokenVerb(), api.getAccessTokenEndpoint());
-            switch (api.getAccessTokenVerb()) {
-                case POST:
-                    request.addBodyParameter(OAuthConstants.CLIENT_ID, config.getApiKey());
-                    request.addBodyParameter(OAuthConstants.CLIENT_SECRET, config.getApiSecret());
-                    request.addBodyParameter(OAuthConstants.CODE, verifier.getValue());
-                    request.addBodyParameter(OAuthConstants.REDIRECT_URI, config.getCallback());
-                    request.addBodyParameter(GRANT_TYPE, GRANT_TYPE_AUTHORIZATION_CODE);
-                    break;
-                case GET:
-                default:
-                    request.addQuerystringParameter(OAuthConstants.CLIENT_ID, config.getApiKey());
-                    request.addQuerystringParameter(OAuthConstants.CLIENT_SECRET, config.getApiSecret());
-                    request.addQuerystringParameter(OAuthConstants.CODE, verifier.getValue());
-                    request.addQuerystringParameter(OAuthConstants.REDIRECT_URI, config.getCallback());
-                    if (config.hasScope())
-                        request.addQuerystringParameter(OAuthConstants.SCOPE, config.getScope());
-            }
-            Response response = request.send();
-            return api.getAccessTokenExtractor().extract(response.getBody());
-        }
+    public Token getAccessToken(Verifier verifier) {
+        return service.getAccessToken(null, verifier);
     }
 }
