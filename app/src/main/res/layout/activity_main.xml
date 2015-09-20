@@ -7,7 +7,7 @@
         android:id="@+id/from_textinputlayer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@+id/numberPicker">
+        android:layout_toStartOf="@+id/editText">
         <EditText
             android:id="@+id/from_edittext"
             android:singleLine="true"
