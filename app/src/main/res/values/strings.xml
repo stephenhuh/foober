@@ -4,4 +4,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_wheel">WheelActivity</string>
+
+    <string name="test_paragraph">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent ultrices, sem in aliquam consequat, nibh tellus semper dui, nec luctus enim arcu sit amet metus. Proin sed lorem dignissim, lobortis urna sit amet, feugiat neque. Vestibulum molestie tincidunt enim malesuada mollis. Fusce enim leo, aliquet nec nisi in, accumsan tincidunt lacus. Nulla et massa euismod, tincidunt est quis, porta mi. Mauris in nunc vestibulum lectus tempor fermentum. Proin vel faucibus justo, eu semper justo. Curabitur tristique elit et iaculis vestibulum. Suspendisse dictum pretium est in aliquam. Etiam eget justo nec turpis hendrerit volutpat sed at nulla. Curabitur rhoncus diam quis lectus lacinia dictum. Quisque a magna iaculis, semper metus nec, imperdiet tellus. Cras porttitor ullamcorper nisl.</string>
 </resources>
