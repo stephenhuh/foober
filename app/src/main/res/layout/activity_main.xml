@@ -15,7 +15,8 @@
         android:id="@+id/from_textinputlayer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toStartOf="@+id/editText">
+        android:layout_alignParentEnd="true"
+        android:layout_toStartOf="@+id/numberPicker">
         <EditText
             android:id="@+id/from_edittext"
             android:singleLine="true"
@@ -77,6 +78,5 @@
         android:layout_toStartOf="@+id/numberPicker"
         android:text="Within (miles)"
         android:selectAllOnFocus="true" />
-        android:layout_height="wrap_content" />
 
 </RelativeLayout>
