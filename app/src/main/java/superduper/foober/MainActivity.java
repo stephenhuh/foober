@@ -16,18 +16,25 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.NumberPicker;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 import org.scribe.extractors.HeaderExtractorImpl;
 import org.scribe.model.Token;
@@ -211,7 +218,7 @@ public class MainActivity extends Activity implements LocationListener {
     }
     
     public void onEventMainThread(YelpEvent yelpEvent) {
-        Toast.makeText(this,mToEditText.getText().toString()+" Added!",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, mToEditText.getText().toString() + " Added!", Toast.LENGTH_SHORT).show();
         mToEditText.setText("");
         hideKeyboard();
         BusinessList response = yelpEvent.businessList;

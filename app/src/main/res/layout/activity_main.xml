@@ -60,15 +60,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/numberPicker"
+        android:layout_marginTop="150dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_above="@+id/mapview" />
 
-    <EditText
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/editText"
-        android:layout_above="@+id/to_textinputlayer"
+        android:layout_below="@+id/to_textinputlayer"
         android:layout_toStartOf="@+id/numberPicker"
         android:text="Within (miles)"
         android:selectAllOnFocus="true" />
