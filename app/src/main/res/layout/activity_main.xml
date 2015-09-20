@@ -77,6 +77,5 @@
         android:layout_toStartOf="@+id/numberPicker"
         android:text="Within (miles)"
         android:selectAllOnFocus="true" />
-        android:layout_height="wrap_content" />
 
 </RelativeLayout>
