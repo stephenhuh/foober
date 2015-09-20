@@ -22,6 +22,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -46,11 +47,14 @@ import de.greenrobot.event.EventBus;
 import superduper.foober.API.Uber.MyConstants;
 import superduper.foober.API.Uber.UberAPI;
 import superduper.foober.Event.UberAccessTokenEvent;
+import superduper.foober.Event.UberEvent;
 import superduper.foober.Event.YelpEvent;
+import superduper.foober.Job.GetUber;
 import superduper.foober.Job.GetUberAccessToken;
 import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
 import superduper.foober.models.BusinessModel;
+import superduper.foober.models.HistoryModel;
 
 public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
@@ -66,6 +70,8 @@ public class MainActivity extends Activity implements LocationListener {
     WebView webView;
     List<Marker> markers = new ArrayList<Marker>();
     ArrayList<BusinessModel> businessModelList = new ArrayList<>();
+    EditText mFromEditText;
+    TextView mWithinMiles;
     final UberAPI uberApi = new UberAPI("price");
 
 
@@ -74,16 +80,23 @@ public class MainActivity extends Activity implements LocationListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mMapView = (MapView) findViewById(R.id.mapview);
         mAddButton = (Button) findViewById(R.id.add_button);
         mToEditText = (EditText) findViewById(R.id.to_edittext);
+        mFromEditText = (EditText) findViewById(R.id.from_edittext);
+        mFromEditText.setVisibility(View.GONE);
         mMapView.setVisibility(View.GONE);
         mAddButton.setVisibility(View.GONE);
         mToEditText.setVisibility(View.GONE);
         mPickButton = (Button) findViewById(R.id.random_pick_button);
+        mPickButton.setVisibility(View.GONE);
         mPickNumber = (NumberPicker) findViewById(R.id.numberPicker);
+        mPickNumber.setVisibility(View.GONE);
+        mWithinMiles = (TextView) findViewById(R.id.miles_text);
+        mWithinMiles.setVisibility(View.GONE);
 
         webView = (WebView) findViewById(R.id.main_activity_web_view);
         webView.getSettings().setDomStorageEnabled(true);
@@ -125,7 +138,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         //Get the authorization Url
         String authUrl = uberApi.getAuthorizationUrl();
-        Log.i("Authorize","Loading Auth Url: "+authUrl);
+        Log.i("Authorize", "Loading Auth Url: " + authUrl);
         //Load the authorization URL into the webView
         webView.loadUrl(authUrl);
 
@@ -209,7 +222,13 @@ public class MainActivity extends Activity implements LocationListener {
         mMapView.setVisibility(View.VISIBLE);
         mAddButton.setVisibility(View.VISIBLE);
         mToEditText.setVisibility(View.VISIBLE);
+        mPickButton.setVisibility(View.VISIBLE);
+        mPickNumber.setVisibility(View.VISIBLE);
+        mFromEditText.setVisibility(View.VISIBLE);
+        mWithinMiles.setVisibility(View.VISIBLE);
+
         webView.setVisibility(View.GONE);
+
         // TEST QUERIISE
         //FooberApplication.getJobManager().addJobInBackground((new GetUber(1, uberApi)));
     }
