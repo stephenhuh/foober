@@ -15,7 +15,6 @@
         app:selectionPadding="4dp"
         app:repeatItems="true"
         app:wheelRadius="150dp"
-        app:wheelItemCount="14"
         app:wheelPadding="13dp"
         app:wheelItemRadius="15dp"/>
 

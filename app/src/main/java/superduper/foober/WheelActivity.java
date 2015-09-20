@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.lukedeighton.wheelview.WheelView;
 
 import java.util.ArrayList;
@@ -19,10 +20,11 @@ import java.util.Random;
 
 import superduper.foober.WheelView.MaterialColor;
 import superduper.foober.WheelView.YelpBusinessAdapter;
+import superduper.foober.models.BusinessList;
 
 public class WheelActivity extends Activity {
 
-    private static final int ITEM_COUNT = 10;
+    private int itemCount = 10;
     private static Random randomGenerator = new Random();
 
     @Override
@@ -30,10 +32,16 @@ public class WheelActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wheel);
 
+        // get yelp businesses chosen
+        String json = getIntent().getExtras().getString("businesses_json");
+        BusinessList businesses = new Gson().fromJson(json, BusinessList.class);
+        itemCount = businesses.getBusinessList().size();
+
         final WheelView wheelView = (WheelView) findViewById(R.id.wheelview);
+        wheelView.setWheelItemCount(itemCount);
         //create data for the adapter
-        List<Map.Entry<String, Integer>> entries = new ArrayList<Map.Entry<String, Integer>>(ITEM_COUNT);
-        for (int i = 0; i < ITEM_COUNT; i++) {
+        List<Map.Entry<String, Integer>> entries = new ArrayList<Map.Entry<String, Integer>>(itemCount);
+        for (int i = 0; i < itemCount; i++) {
             Map.Entry<String, Integer> entry = MaterialColor.random(this, "\\D*_500$");
             entries.add(entry);
         }
@@ -76,6 +84,8 @@ public class WheelActivity extends Activity {
         imageView.setOnClickListener(clickListener);
 
         int choice = wheelView.getSelectedPosition();
+
+
     }
 
     private static class Spinning implements Runnable {
