@@ -155,8 +155,8 @@ public class MainActivity extends Activity implements LocationListener {
 
 
         mPickNumber = (NumberPicker) findViewById(R.id.numberPicker);
-        mPickNumber.setMaxValue(100);
-        mPickNumber.setMinValue(0);
+        mPickNumber.setMaxValue(25);
+        mPickNumber.setMinValue(1);
         mPickNumber.setWrapSelectorWheel(true);
 
         mAddButton.setOnClickListener(new View.OnClickListener() {

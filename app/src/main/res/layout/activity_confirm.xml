@@ -24,11 +24,20 @@
     </ScrollView>
 
     <TextView
+        android:id="@+id/restaurant_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        android:layout_below="@id/description_scroll"/>
+
+    <TextView
         android:id="@+id/price_estimate_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:layout_below="@id/description_scroll"/>
+        android:layout_below="@id/restaurant_textview"/>
+
+
 
     <Button
         android:text="CONFIRM"

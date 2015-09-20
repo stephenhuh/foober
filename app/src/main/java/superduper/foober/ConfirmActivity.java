@@ -32,6 +32,8 @@ import superduper.foober.models.RequestEstimateModel;
 
 public class ConfirmActivity extends Activity {
     private TextView mDescriptionTextView;
+    private TextView mRestaurant;
+
     private ImageView mImageView;
     SharedPreferences preferences;
     double latitude;
@@ -60,6 +62,12 @@ public class ConfirmActivity extends Activity {
         longitude = Double.valueOf(preferences.getString("long",null));
         String description = getIntent().getStringExtra("description");
         String imageUrl = getIntent().getStringExtra("snippet_image_url");
+        String address = getIntent().getStringExtra("address");
+        String name = getIntent().getStringExtra("name");
+
+        mRestaurant = (TextView) findViewById(R.id.restaurant_textview);
+        mRestaurant.setText(name+ "\n" + address);
+
         confirm = (Button) findViewById(R.id.confirm_button);
         mImageView = (ImageView) findViewById(R.id.yelp_imageview);
         mPriceEstimateTextView = (TextView) findViewById(R.id.price_estimate_textview);

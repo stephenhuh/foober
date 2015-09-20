@@ -109,6 +109,9 @@ public class WheelActivity extends Activity {
                 intent.putExtra("image_url", businesses.getBusinessList().get(choice).getImageUrl());
                 intent.putExtra("description", businesses.getBusinessList().get(choice).getDescription());
                 intent.putExtra("snippet_image_url", businesses.getBusinessList().get(choice).getSnippetUrl());
+                intent.putExtra("name", businesses.getBusinessList().get(choice).getName());
+                intent.putExtra("address", address);
+
                 startActivity(intent);
             }
         });
