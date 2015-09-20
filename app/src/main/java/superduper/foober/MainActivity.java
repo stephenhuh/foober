@@ -179,8 +179,8 @@ public class MainActivity extends Activity implements LocationListener {
         } else {
             createNoGpsAlert();
         }
-    
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

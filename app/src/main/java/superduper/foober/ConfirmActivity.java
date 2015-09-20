@@ -1,7 +1,9 @@
 package superduper.foober;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
@@ -12,11 +14,17 @@ import com.squareup.picasso.Picasso;
 public class ConfirmActivity extends Activity {
     private TextView mDescriptionTextView;
     private ImageView mImageView;
+    SharedPreferences preferences;
+    double latitude;
+    double longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        latitude = Double.valueOf(preferences.getString("lat",null));
+        longitude = Double.valueOf(preferences.getString("long",null));
         String description = getIntent().getStringExtra("description");
         String imageUrl = getIntent().getStringExtra("snippet_image_url");
 

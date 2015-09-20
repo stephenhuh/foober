@@ -2,9 +2,13 @@ package superduper.foober;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.lukedeighton.wheelview.WheelView;
 
@@ -23,17 +28,20 @@ import java.util.Random;
 import superduper.foober.WheelView.MaterialColor;
 import superduper.foober.WheelView.YelpBusinessAdapter;
 import superduper.foober.models.BusinessList;
+import superduper.foober.models.BusinessModel;
 
 public class WheelActivity extends Activity {
 
     private int itemCount = 10;
     private static int choice;
     private static Random randomGenerator = new Random();
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wheel);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         // get yelp businesses chosen
         String json = getIntent().getExtras().getString("businesses_json");
@@ -86,18 +94,39 @@ public class WheelActivity extends Activity {
         };
         imageView.setOnClickListener(clickListener);
 
-        Button confirm = (Button) findViewById(R.id.confirm_btn);
+        final Button confirm = (Button) findViewById(R.id.confirm_btn);
 
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(WheelActivity.this, ConfirmActivity.class);
+                BusinessModel business = businesses.getBusinessList().get(choice);
+                String address = business.getAddress()+", "+business.getCity()+" "+business.getLocationData().getPostalCode();
+                LatLng location = convertAddress(address);
+                sharedPreferences.edit().putString("lat",String.valueOf(location.latitude)).apply();
+                sharedPreferences.edit().putString("long",String.valueOf(location.longitude)).apply();
                 intent.putExtra("image_url", businesses.getBusinessList().get(choice).getImageUrl());
                 intent.putExtra("description", businesses.getBusinessList().get(choice).getDescription());
                 intent.putExtra("snippet_image_url", businesses.getBusinessList().get(choice).getSnippetUrl());
                 startActivity(intent);
             }
         });
+    }
+    public LatLng convertAddress(String address) {
+        if (address != null && !address.isEmpty()) {
+            try {
+                Geocoder geocoder = new Geocoder(this);
+                List<Address> addressList = geocoder.getFromLocationName(address, 1);
+                if (addressList != null && addressList.size() > 0) {
+                    double lat = addressList.get(0).getLatitude();
+                    double lng = addressList.get(0).getLongitude();
+                    return new LatLng(lat,lng);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } // end catch
+        } // end if
+        return null;
     }
 
     private static class Spinning implements Runnable {
