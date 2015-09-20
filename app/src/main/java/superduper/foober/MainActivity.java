@@ -87,6 +87,7 @@ public class MainActivity extends Activity implements LocationListener {
         mAddButton.setVisibility(View.GONE);
         mToEditText.setVisibility(View.GONE);
         mPickButton = (Button) findViewById(R.id.random_pick_button);
+        mPickButton.setVisibility(View.GONE);
         mPickNumber = (NumberPicker) findViewById(R.id.numberPicker);
 
         webView = (WebView) findViewById(R.id.main_activity_web_view);
@@ -213,6 +214,7 @@ public class MainActivity extends Activity implements LocationListener {
         mMapView.setVisibility(View.VISIBLE);
         mAddButton.setVisibility(View.VISIBLE);
         mToEditText.setVisibility(View.VISIBLE);
+        mPickButton.setVisibility(View.VISIBLE);
         webView.setVisibility(View.GONE);
         // TEST QUERIISE
         FooberApplication.getJobManager().addJobInBackground((new GetUber(1, uberApi)));
