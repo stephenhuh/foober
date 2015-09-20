@@ -9,9 +9,16 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import superduper.foober.API.Uber.UberAPI;
+import superduper.foober.Event.UberEvent;
+import superduper.foober.Job.GetUber;
+import superduper.foober.models.Price;
+import superduper.foober.models.PriceList;
+
 public class ConfirmActivity extends Activity {
     private TextView mDescriptionTextView;
     private ImageView mImageView;
+    private TextView mPriceEstimateTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,8 +26,10 @@ public class ConfirmActivity extends Activity {
         setContentView(R.layout.activity_confirm);
         String description = getIntent().getStringExtra("description");
         String imageUrl = getIntent().getStringExtra("snippet_image_url");
+        FooberApplication.getJobManager().addJobInBackground(new GetUber(5,new UberAPI("price"),Utils.CURRENT_LOCATION.getLatitude(),Utils.CURRENT_LOCATION.getLatitude(),));
 
         mImageView = (ImageView) findViewById(R.id.yelp_imageview);
+        mPriceEstimateTextView = (TextView) findViewById(R.id.price_estimate_textview);
         mDescriptionTextView = (TextView) findViewById(R.id.description_textview);
         mDescriptionTextView.setText(description);
 
@@ -49,5 +58,13 @@ public class ConfirmActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onEventMainThread(UberEvent event) {
+        PriceList priceList = event.priceList;
+        String text="";
+        for(Price item:priceList.getPrices()) {
+            text = text + item.getDisplayName() + ":" +item.getEstimate() +"\n";
+        }
     }
 }

@@ -46,14 +46,11 @@ import de.greenrobot.event.EventBus;
 import superduper.foober.API.Uber.MyConstants;
 import superduper.foober.API.Uber.UberAPI;
 import superduper.foober.Event.UberAccessTokenEvent;
-import superduper.foober.Event.UberEvent;
 import superduper.foober.Event.YelpEvent;
-import superduper.foober.Job.GetUber;
 import superduper.foober.Job.GetUberAccessToken;
 import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
 import superduper.foober.models.BusinessModel;
-import superduper.foober.models.HistoryModel;
 
 public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
@@ -69,14 +66,13 @@ public class MainActivity extends Activity implements LocationListener {
     WebView webView;
     List<Marker> markers = new ArrayList<Marker>();
     ArrayList<BusinessModel> businessModelList = new ArrayList<>();
-    final UberAPI uberApi = new UberAPI();
+    final UberAPI uberApi = new UberAPI("price");
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -203,10 +199,10 @@ public class MainActivity extends Activity implements LocationListener {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onEventMainThread(UberEvent uberEvent) {
-        List<HistoryModel> historyList = uberEvent.historyList.getHistoryList();
-        Log.i("user city", historyList.get(0).getStartCity().getDisplayName());
-    }
+//    public void onEventMainThread(UberEvent uberEvent) {
+//        List<HistoryModel> historyList = uberEvent.priceList.getHistoryList();
+//        Log.i("user city", historyList.get(0).getStartCity().getDisplayName());
+//    }
 
     public void onEventMainThread(UberAccessTokenEvent uberAccessTokenEvent) {
         uberApi.setAccessToken(uberAccessTokenEvent.accessToken);
@@ -215,7 +211,7 @@ public class MainActivity extends Activity implements LocationListener {
         mToEditText.setVisibility(View.VISIBLE);
         webView.setVisibility(View.GONE);
         // TEST QUERIISE
-        FooberApplication.getJobManager().addJobInBackground((new GetUber(1, uberApi)));
+        //FooberApplication.getJobManager().addJobInBackground((new GetUber(1, uberApi)));
     }
     
     public void onEventMainThread(YelpEvent yelpEvent) {
