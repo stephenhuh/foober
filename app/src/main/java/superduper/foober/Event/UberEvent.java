@@ -5,10 +5,14 @@ import superduper.foober.models.PriceList;
 /**
  * Created by anhbui on 9/19/15.
  */
-public class UberEvent {
-    public final PriceList priceList;
+public class UberEvent<T> {
+    private final T value;
 
-    public UberEvent(PriceList historyList) {
-        this.priceList = historyList;
+    public UberEvent(T value) {
+        this.value = value;
+    }
+
+    public T getValue() {
+        return value;
     }
 }

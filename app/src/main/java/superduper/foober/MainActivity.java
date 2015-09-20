@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -12,6 +13,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,11 +38,15 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import de.greenrobot.event.EventBus;
@@ -55,6 +61,8 @@ import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
 import superduper.foober.models.BusinessModel;
 import superduper.foober.models.HistoryModel;
+import superduper.foober.models.ProductsList;
+import superduper.foober.models.RequestEstimateModel;
 
 public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
@@ -72,7 +80,9 @@ public class MainActivity extends Activity implements LocationListener {
     ArrayList<BusinessModel> businessModelList = new ArrayList<>();
     EditText mFromEditText;
     TextView mWithinMiles;
-    final UberAPI uberApi = new UberAPI("price");
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    final UberAPI<ProductsList> uberApi = new UberAPI<ProductsList>("request", "v1/products",
+            ProductsList.class);
 
 
     @Override
@@ -213,8 +223,8 @@ public class MainActivity extends Activity implements LocationListener {
     }
 
 //    public void onEventMainThread(UberEvent uberEvent) {
-//        List<HistoryModel> historyList = uberEvent.priceList.getHistoryList();
-//        Log.i("user city", historyList.get(0).getStartCity().getDisplayName());
+//        Object value = uberEvent.getValue();
+//        Log.i("parsed uber", new Gson().toJson(value));
 //    }
 
     public void onEventMainThread(UberAccessTokenEvent uberAccessTokenEvent) {
@@ -229,8 +239,11 @@ public class MainActivity extends Activity implements LocationListener {
 
         webView.setVisibility(View.GONE);
 
-        // TEST QUERIISE
-        //FooberApplication.getJobManager().addJobInBackground((new GetUber(1, uberApi)));
+//        Map<String, String> queryParams = new HashMap<String, String>(200);
+//        queryParams.put("latitude", String.valueOf(Utils.CURRENT_LOCATION.getLatitude()));
+//        queryParams.put("longitude", String.valueOf(Utils.CURRENT_LOCATION.getLongitude()));
+//         TEST QUERIISE
+//        FooberApplication.getJobManager().addJobInBackground((new GetUber(uberApi, queryParams)));
     }
     
     public void onEventMainThread(YelpEvent yelpEvent) {

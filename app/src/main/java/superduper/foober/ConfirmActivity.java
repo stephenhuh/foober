@@ -26,7 +26,7 @@ public class ConfirmActivity extends Activity {
         setContentView(R.layout.activity_confirm);
         String description = getIntent().getStringExtra("description");
         String imageUrl = getIntent().getStringExtra("snippet_image_url");
-        FooberApplication.getJobManager().addJobInBackground(new GetUber(5,new UberAPI("price"),Utils.CURRENT_LOCATION.getLatitude(),Utils.CURRENT_LOCATION.getLatitude(),));
+//        FooberApplication.getJobManager().addJobInBackground(new GetUber(5,new UberAPI("price"),Utils.CURRENT_LOCATION.getLatitude(),Utils.CURRENT_LOCATION.getLatitude()));
 
         mImageView = (ImageView) findViewById(R.id.yelp_imageview);
         mPriceEstimateTextView = (TextView) findViewById(R.id.price_estimate_textview);
@@ -61,10 +61,10 @@ public class ConfirmActivity extends Activity {
     }
 
     public void onEventMainThread(UberEvent event) {
-        PriceList priceList = event.priceList;
-        String text="";
-        for(Price item:priceList.getPrices()) {
-            text = text + item.getDisplayName() + ":" +item.getEstimate() +"\n";
-        }
+//        PriceList priceList = event.priceList;
+//        String text="";
+//        for(Price item:priceList.getPrices()) {
+//            text = text + item.getDisplayName() + ":" +item.getEstimate() +"\n";
+//        }
     }
 }
