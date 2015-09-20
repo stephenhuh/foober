@@ -143,14 +143,6 @@ public class MainActivity extends Activity implements LocationListener {
         mPickNumber.setMinValue(0);
         mPickNumber.setWrapSelectorWheel(true);
 
-        mPickButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String data = gson.toJson(businessModelList);
-                Log.d("DATA: ", data);
-            }
-        });
-
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,13 +153,25 @@ public class MainActivity extends Activity implements LocationListener {
                             Utils.CURRENT_LOCATION.getLatitude(), //Lat
                             Utils.CURRENT_LOCATION.getLongitude(), //Long
                             mPickNumber.getValue()*1609,//radius = miles*meters/mile = meters
-                            15,//limit
+                            6,//limit
                             mToEditText.getText().toString(),
                             address.getAddressLine(0)+","+address.getLocality()+" "+address.getPostalCode()
                     ));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+        });
+
+        mPickButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, WheelActivity.class);
+                String json = gson.toJson(businessModelList);
+                json = "{\"businesses\":" + json + "}";
+                intent.putExtra("businesses_json", json);
+                Log.d("Data", json);
+                startActivity(intent);
             }
         });
 
@@ -243,7 +247,7 @@ public class MainActivity extends Activity implements LocationListener {
             builder.include(marker.getPosition());
         }
         LatLngBounds bounds = builder.build();
-        int padding = 350; // offset from edges of the map in pixels
+        int padding = 200; // offset from edges of the map in pixels
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
         mGoogleMap.animateCamera(cu);
     }
