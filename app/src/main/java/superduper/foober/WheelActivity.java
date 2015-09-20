@@ -36,7 +36,8 @@ public class WheelActivity extends Activity {
     private static int choice;
     private static Random randomGenerator = new Random();
     SharedPreferences sharedPreferences;
-
+    static Button confirm;
+    static ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +85,7 @@ public class WheelActivity extends Activity {
         final Handler handler = new Handler();
 
         handler.postDelayed(new Spinning(wheelView, handler), 500);
-        final ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        imageView = (ImageView) findViewById(R.id.imageView);
         View.OnClickListener clickListener = new View.OnClickListener() {
             public void onClick(View v) {
                 if (v.equals(imageView)) {
@@ -94,7 +95,7 @@ public class WheelActivity extends Activity {
         };
         imageView.setOnClickListener(clickListener);
 
-        final Button confirm = (Button) findViewById(R.id.confirm_btn);
+        confirm = (Button) findViewById(R.id.confirm_btn);
 
         confirm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,10 +140,13 @@ public class WheelActivity extends Activity {
         public Spinning(WheelView wheelView, Handler handler) {
             this.wheelView = wheelView;
             this.handler = handler;
+
         }
 
         @Override
         public void run() {
+            confirm.setClickable(false);
+            imageView.setClickable(false);
             wheelView.setAngle(-wheelView.getAngleForPosition(iterPosition));
             iterPosition = ++iterPosition % 10;
             if (slowingDown < 3400) {
@@ -152,6 +156,8 @@ public class WheelActivity extends Activity {
             }
             else {
                 choice = wheelView.getSelectedPosition();
+                imageView.setClickable(true);
+                confirm.setClickable(true);
             }
         }
     }

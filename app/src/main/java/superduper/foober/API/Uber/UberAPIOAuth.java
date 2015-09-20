@@ -112,9 +112,7 @@ public class UberAPIOAuth extends DefaultApi20 {
                     if (config.hasScope())
                         request.addQuerystringParameter(OAuthConstants.SCOPE, config.getScope());
             }
-            Log.i("SEDNING RQ", request.getCompleteUrl());
-            Log.i("BODY", request.getBodyParams().asFormUrlEncodedString());
-            Log.i("RQ HEADERS", request.getHeaders().toString());
+
             Response response = request.send();
             Log.i("response", response.getBody());
             return api.getAccessTokenExtractor().extract(response.getBody());

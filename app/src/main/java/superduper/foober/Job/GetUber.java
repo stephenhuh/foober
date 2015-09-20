@@ -5,6 +5,8 @@ import android.util.Log;
 import com.path.android.jobqueue.Job;
 import com.path.android.jobqueue.Params;
 
+import org.scribe.model.Verb;
+
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
@@ -30,7 +32,15 @@ public class GetUber<T> extends Job {
 
     @Override
     public void onRun() throws Throwable {
-        EventBus.getDefault().post(new UberEvent(uberApi.queryApi(this.queryParams)));
+        Verb verb;
+        if (uberApi.getEndpoint().equals("v1/requests/estimate")) {
+            Log.i("Verb", "yaaaaa POST");
+            verb = Verb.POST;
+        }
+        else {
+            verb = Verb.GET;
+        }
+        EventBus.getDefault().post(new UberEvent(uberApi.queryApi(this.queryParams, verb)));
     }
 
     @Override

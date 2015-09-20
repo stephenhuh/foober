@@ -80,7 +80,7 @@ public class MainActivity extends Activity implements LocationListener {
     ArrayList<BusinessModel> businessModelList = new ArrayList<>();
     EditText mFromEditText;
     TextView mWithinMiles;
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    SharedPreferences prefs;
     final UberAPI<ProductsList> uberApi = new UberAPI<ProductsList>("request", "v1/products",
             ProductsList.class);
 
@@ -90,6 +90,7 @@ public class MainActivity extends Activity implements LocationListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);

@@ -54,6 +54,10 @@ public class UberAPI<T> {
         this.accessToken = token;
     }
 
+    public String getEndpoint() {
+        return endpoint;
+    }
+
     public String getAuthorizationUrl() {
         return service.getAuthorizationUrl(new Token(MyConstants.UBER_CLIENT_ID, MyConstants.UBER_CLIENT_SECRET));
     }
@@ -76,14 +80,32 @@ public class UberAPI<T> {
         return response;
     }
 
-    public T queryApi(Map<String, String> queryParams) {
+    public T queryApi(Map<String, String> queryParams, Verb verb) {
         String url = MyConstants.UBER_API_URL + this.endpoint;
-        OAuthRequest request = new OAuthRequest(Verb.GET, url);
+        OAuthRequest request = new OAuthRequest(verb, url);
         Iterator<String> keys = queryParams.keySet().iterator();
-        while (keys.hasNext()) {
-            String key = keys.next();
-            request.addQuerystringParameter(key, queryParams.get(key));
+
+        switch (verb) {
+            case POST:
+                Log.i("SEDNING RQ", request.getCompleteUrl());
+                Log.i("BODY", request.getBodyParams().asFormUrlEncodedString());
+                Log.i("RQ HEADERS", request.getHeaders().toString());
+                request.addHeader("Content-Type", "application/json");
+                Log.i("SEDNING RQ", request.getCompleteUrl());
+                Log.i("BODY", request.getBodyParams().asFormUrlEncodedString());
+                Log.i("RQ HEADERS", request.getHeaders().toString());
+                request.addPayload(new Gson().toJson(queryParams));
+                Log.i("BODY", request.getBodyParams().asFormUrlEncodedString());
+
+                break;
+            case GET:
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    request.addQuerystringParameter(key, queryParams.get(key));
+                }
+
         }
+
         return sendAndGetResponse(request);
     }
 
