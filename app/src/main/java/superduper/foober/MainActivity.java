@@ -36,10 +36,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
-import org.scribe.extractors.HeaderExtractorImpl;
-import org.scribe.model.Token;
-import org.scribe.model.Verifier;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +53,6 @@ import superduper.foober.Job.GetUberAccessToken;
 import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
 import superduper.foober.models.BusinessModel;
-import superduper.foober.models.HistoryList;
 import superduper.foober.models.HistoryModel;
 
 public class MainActivity extends Activity implements LocationListener {
@@ -71,6 +66,7 @@ public class MainActivity extends Activity implements LocationListener {
     Geocoder geocoder;
     Random generator = new Random();
     NumberPicker mPickNumber;
+    WebView webView;
     List<Marker> markers = new ArrayList<Marker>();
     ArrayList<BusinessModel> businessModelList = new ArrayList<>();
     final UberAPI uberApi = new UberAPI();
@@ -93,7 +89,7 @@ public class MainActivity extends Activity implements LocationListener {
         mPickButton = (Button) findViewById(R.id.random_pick_button);
         mPickNumber = (NumberPicker) findViewById(R.id.numberPicker);
 
-        final WebView webView = (WebView) findViewById(R.id.main_activity_web_view);
+        webView = (WebView) findViewById(R.id.main_activity_web_view);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setJavaScriptEnabled(true);
         //Request focus for the webview
@@ -213,6 +209,7 @@ public class MainActivity extends Activity implements LocationListener {
         mMapView.setVisibility(View.VISIBLE);
         mAddButton.setVisibility(View.VISIBLE);
         mToEditText.setVisibility(View.VISIBLE);
+        webView.setVisibility(View.GONE);
         // TEST QUERIISE
         FooberApplication.getJobManager().addJobInBackground((new GetUber(1, uberApi)));
     }
