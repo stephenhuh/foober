@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -54,6 +55,7 @@ public class MainActivity extends Activity implements LocationListener {
     EditText mToEditText;
     Geocoder geocoder;
     Random generator = new Random();
+    NumberPicker mPickNumber;
     List<Marker> markers = new ArrayList<Marker>();
     ArrayList<BusinessModel> businessModelList = new ArrayList<>();
 
@@ -67,6 +69,12 @@ public class MainActivity extends Activity implements LocationListener {
         mAddButton = (Button) findViewById(R.id.add_button);
         mToEditText = (EditText) findViewById(R.id.to_edittext);
         mPickButton = (Button) findViewById(R.id.random_pick_button);
+        mPickNumber = (NumberPicker) findViewById(R.id.numberPicker);
+
+        mPickNumber = (NumberPicker) findViewById(R.id.numberPicker);
+        mPickNumber.setMaxValue(100);
+        mPickNumber.setMinValue(0);
+        mPickNumber.setWrapSelectorWheel(true);
 
         mPickButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,8 +93,8 @@ public class MainActivity extends Activity implements LocationListener {
                     FooberApplication.getJobManager().addJobInBackground(new GetYelp(
                             Utils.CURRENT_LOCATION.getLatitude(), //Lat
                             Utils.CURRENT_LOCATION.getLongitude(), //Long
-                            10000,//radius
-                            5,//limit
+                            mPickNumber.getValue()*1609,//radius = miles*meters/mile = meters
+                            15,//limit
                             mToEditText.getText().toString(),
                             address.getAddressLine(0)+","+address.getLocality()+" "+address.getPostalCode()
                     ));
