@@ -1,41 +1,32 @@
 package superduper.foober;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import de.greenrobot.event.EventBus;
-import it.gmariotti.cardslib.library.cards.material.MaterialLargeImageCard;
-import it.gmariotti.cardslib.library.internal.Card;
-import it.gmariotti.cardslib.library.internal.CardHeader;
-import superduper.foober.Event.YelpEvent;
-import superduper.foober.Job.GetYelp;
-import superduper.foober.models.BusinessList;
-import it.gmariotti.cardslib.library.view.CardViewNative;
+import com.squareup.picasso.Picasso;
 
 public class ConfirmActivity extends Activity {
-    private LocationManager mLocationManager;
+    private TextView mDescriptionTextView;
+    private ImageView mImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_confirm);
+        String description = getIntent().getStringExtra("description");
+        String imageUrl = getIntent().getStringExtra("image_url");
 
-        MaterialLargeImageCard card =
-                MaterialLargeImageCard.with(this)
-                        .setTextOverImage("Italian Beaches")
-                        .useDrawableId(R.drawable.chipotle)
-                        .setupSupplementalActions(R.layout.carddemo_native_material_supplemental_actions_large, null )
-                        .build();
+        mImageView = (ImageView) findViewById(R.id.yelp_imageview);
+        mDescriptionTextView = (TextView) findViewById(R.id.description_textview);
+        mDescriptionTextView.setText(description);
 
-
+        Picasso.with(this)
+                .load(imageUrl)
+                .into(mImageView);
     }
 
     @Override
@@ -58,69 +49,5 @@ public class ConfirmActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-    
-    public void onEventMainThread(YelpEvent yelpEvent) {
-        BusinessList response = yelpEvent.businessList;
-        System.out.println(response.getBusinessList().get(0).getAddress());
-        System.out.println(response.getBusinessList().get(0).getName());
-        System.out.println(response.getBusinessList().get(0).getPhoneNumber());
-        System.out.println(response.getBusinessList().get(0).getLocationData());
-        System.out.println(response.getBusinessList().get(0).getCity());
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    protected void onStop() {
-        EventBus.getDefault().unregister(this);
-        super.onStop();
-    }
-
-    /**
-     * Creates and alert dialog which displays to the user when Location services are not enabled.
-     */
-    private void createNoGpsAlert() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-        builder.setTitle("GPS Disabled")
-                .setMessage("GPS is disabled on the device. Enable it?")
-                .setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
-                .setNegativeButton("no", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .setCancelable(false);
-
-        AlertDialog mNoGpsAlertDialog = builder.create();
-        mNoGpsAlertDialog.show();
-    }
-
-    /**
-     * Sets the current location using GPS
-     */
-    private void setLocation() {
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            if(Utils.CURRENT_LOCATION == null) {
-                Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if(lastLocation != null) {
-                    Utils.CURRENT_LOCATION = lastLocation;
-                } else {
-                    Utils.CURRENT_LOCATION = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-                }
-            }
-        }
     }
 }
