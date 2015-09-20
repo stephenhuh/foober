@@ -1,15 +1,18 @@
 package superduper.foober.Event;
 
-import superduper.foober.models.HistoryList;
-import superduper.foober.models.HistoryModel;
+import superduper.foober.models.PriceList;
 
 /**
  * Created by anhbui on 9/19/15.
  */
-public class UberEvent {
-    public final HistoryList historyList;
+public class UberEvent<T> {
+    private final T value;
 
-    public UberEvent(HistoryList historyList) {
-        this.historyList = historyList;
+    public UberEvent(T value) {
+        this.value = value;
+    }
+
+    public T getValue() {
+        return value;
     }
 }

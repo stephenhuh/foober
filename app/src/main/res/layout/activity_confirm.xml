@@ -23,12 +23,19 @@
             android:layout_height="500dp" />
     </ScrollView>
 
+    <TextView
+        android:text="This is just a test"
+        android:id="@+id/price_estimate_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/description_scroll"/>
+
     <Button
         android:text="CONFIRM"
         android:id="@+id/confirm_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/description_scroll"
+        android:layout_below="@id/price_estimate_textview"
         android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

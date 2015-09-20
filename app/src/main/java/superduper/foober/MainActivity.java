@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -12,6 +13,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +24,7 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -35,11 +38,15 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 import de.greenrobot.event.EventBus;
@@ -54,6 +61,8 @@ import superduper.foober.Job.GetYelp;
 import superduper.foober.models.BusinessList;
 import superduper.foober.models.BusinessModel;
 import superduper.foober.models.HistoryModel;
+import superduper.foober.models.ProductsList;
+import superduper.foober.models.RequestEstimateModel;
 
 public class MainActivity extends Activity implements LocationListener {
     private LocationManager mLocationManager;
@@ -69,7 +78,11 @@ public class MainActivity extends Activity implements LocationListener {
     WebView webView;
     List<Marker> markers = new ArrayList<Marker>();
     ArrayList<BusinessModel> businessModelList = new ArrayList<>();
-    final UberAPI uberApi = new UberAPI();
+    EditText mFromEditText;
+    TextView mWithinMiles;
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    final UberAPI<ProductsList> uberApi = new UberAPI<ProductsList>("request", "v1/products",
+            ProductsList.class);
 
 
     @Override
@@ -83,12 +96,17 @@ public class MainActivity extends Activity implements LocationListener {
         mMapView = (MapView) findViewById(R.id.mapview);
         mAddButton = (Button) findViewById(R.id.add_button);
         mToEditText = (EditText) findViewById(R.id.to_edittext);
+        mFromEditText = (EditText) findViewById(R.id.from_edittext);
+        mFromEditText.setVisibility(View.GONE);
         mMapView.setVisibility(View.GONE);
         mAddButton.setVisibility(View.GONE);
         mToEditText.setVisibility(View.GONE);
         mPickButton = (Button) findViewById(R.id.random_pick_button);
         mPickButton.setVisibility(View.GONE);
         mPickNumber = (NumberPicker) findViewById(R.id.numberPicker);
+        mPickNumber.setVisibility(View.GONE);
+        mWithinMiles = (TextView) findViewById(R.id.miles_text);
+        mWithinMiles.setVisibility(View.GONE);
 
         webView = (WebView) findViewById(R.id.main_activity_web_view);
         webView.getSettings().setDomStorageEnabled(true);
@@ -130,7 +148,7 @@ public class MainActivity extends Activity implements LocationListener {
 
         //Get the authorization Url
         String authUrl = uberApi.getAuthorizationUrl();
-        Log.i("Authorize","Loading Auth Url: "+authUrl);
+        Log.i("Authorize", "Loading Auth Url: " + authUrl);
         //Load the authorization URL into the webView
         webView.loadUrl(authUrl);
 
@@ -204,10 +222,10 @@ public class MainActivity extends Activity implements LocationListener {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onEventMainThread(UberEvent uberEvent) {
-        List<HistoryModel> historyList = uberEvent.historyList.getHistoryList();
-        Log.i("user city", historyList.get(0).getStartCity().getDisplayName());
-    }
+//    public void onEventMainThread(UberEvent uberEvent) {
+//        Object value = uberEvent.getValue();
+//        Log.i("parsed uber", new Gson().toJson(value));
+//    }
 
     public void onEventMainThread(UberAccessTokenEvent uberAccessTokenEvent) {
         uberApi.setAccessToken(uberAccessTokenEvent.accessToken);
@@ -215,9 +233,17 @@ public class MainActivity extends Activity implements LocationListener {
         mAddButton.setVisibility(View.VISIBLE);
         mToEditText.setVisibility(View.VISIBLE);
         mPickButton.setVisibility(View.VISIBLE);
+        mPickNumber.setVisibility(View.VISIBLE);
+        mFromEditText.setVisibility(View.VISIBLE);
+        mWithinMiles.setVisibility(View.VISIBLE);
+
         webView.setVisibility(View.GONE);
-        // TEST QUERIISE
-        FooberApplication.getJobManager().addJobInBackground((new GetUber(1, uberApi)));
+
+//        Map<String, String> queryParams = new HashMap<String, String>(200);
+//        queryParams.put("latitude", String.valueOf(Utils.CURRENT_LOCATION.getLatitude()));
+//        queryParams.put("longitude", String.valueOf(Utils.CURRENT_LOCATION.getLongitude()));
+//         TEST QUERIISE
+//        FooberApplication.getJobManager().addJobInBackground((new GetUber(uberApi, queryParams)));
     }
     
     public void onEventMainThread(YelpEvent yelpEvent) {
